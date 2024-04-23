@@ -10,10 +10,10 @@ Frontend::Frontend() {
 
     CurrentTime = GetTime();
 
-         OpeningScene = false;
+         OpeningScene = true;
          Mode2D = true;
          Mode3D = false;
-         MenuMode = true;
+         MenuMode = false;
 
         offset = 150.f;
 
@@ -93,6 +93,7 @@ void Frontend::mFrontend() {
         {
             OpeningScene = false;
             Mode3D = false;
+            MenuMode = true;
         }
     }
 

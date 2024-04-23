@@ -18,7 +18,7 @@ typedef struct player0 {
 
 player0 player0;
 
-player0.blank = LoadTexture("graphics/star-wars-logo.png");
+player0.blank = LoadTexture("graphics/player01.png");
 player0.blankSpeed = 1.0f;
 player0.blankpos = (Vector2){GetScreenWidth() /2, GetScreenHeight() /2};
 

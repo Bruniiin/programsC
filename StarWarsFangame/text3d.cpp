@@ -187,8 +187,8 @@ Text3D::Text3D() {
 
     float Time = 0.0f;
 
-    position = {-1.5f, 3.5f, 3.5f};
-    positionTitle = {-2.f, 3.5f, 4.f};
+    position = {-1.5f, 3.5f, 3.0f};
+    positionTitle = {-2.f, 3.5f, 3.5f};
 
     alpha = 1.0f;
 
@@ -211,11 +211,11 @@ void Text3D::Draw() {
 
 //    Scene scene;
 
-    char textTitle[32] = "O IMPÉRIO CONTRA-ATACA";
+    char textTitle[32] = "THE EMPIRE STRIKES BACK";
 
     int Size = 2 << 16; // 65536 caracteres.
 
-    char text[Size] = "              Episódio V \n\n\n\n\n              BATALHA DE HOTH \n TEST E TEST \n TEST TEST \n TEST TEST \n TEST TEST \n TEST TEST \n TEST TEST \n TEST TEST \n TEST TEST \n TEST TEST \n TEST TEST \n TEST TEST";
+    char text[Size] = "            Episode V \n\n\n\n\n       BATTLE OF HOTH \n TEST E TEST \n TEST TEST \n TEST TEST \n TEST TEST \n TEST TEST \n TEST TEST \n TEST TEST \n TEST TEST \n TEST TEST \n TEST TEST \n TEST TEST";
     Vector3 tbox = {0};
     int layers = 2;
     int quads = 0;
@@ -226,15 +226,12 @@ void Text3D::Draw() {
     lineSpacing = -1.0f;
     fontSizeTitle = 34.0f;
 
+    position.z -= 0.002f;
+    positionTitle.z -= 0.002f;
 
     rlPushMatrix();
         rlRotatef(90.0f, 1.f, 0.f, 1.f);
         rlRotatef(90.0f, 0.f, 0.f, -1.f);
-
-    position.z -= 0.002f;
-    positionTitle.z -= 0.002f;
-
-
 
     if (CurrentTime > 0.f) 
     {
@@ -259,6 +256,8 @@ void Text3D::Draw() {
     }
 
 }
+
+// Ignora
 
 // typedef struct {
 //     Vector2 position;

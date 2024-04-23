@@ -14,21 +14,28 @@ class Scene {
         void OpeningBegin();
         void TextBegin();
         void TextToTexture();
+        void SceneDebug();
+
+        Font fontf;
+
     private:
         Texture2D logo;
         Texture2D background;
-        Vector2 position;
         float alpha;
         float currentTime;
-        float screenWidth;
-        float screenHeight;
-        Font fontf;
+
         Vector2 scroll;
         Music openingm;
-        Camera3D camera;
-        Camera2D cameraVector2;
+        Camera3D cameraVector3;
+//        Camera2D cameraVector2;
         int camera_mode;
         Shader textshader;
         RenderTexture2D target;
+        Vector2 position;
+        Vector3 position3;
+        bool objDeclared;
+        bool debugMode;
+        bool deconstructorCalled;
 
 };
+

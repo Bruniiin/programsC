@@ -8,17 +8,17 @@
 
  using namespace std;
 
-//  static void DrawTextCodepoint3D(Font font, int codepoint, Vector3 position, float fontSize, bool backface, Color tint);
+ static void DrawTextCodepoint3D(Font font, int codepoint, Vector3 position, float fontSize, bool backface, Color tint);
 
-//  static void DrawText3D(Font font, const char *text, Vector3 position, float fontSize, float fontSpacing, float lineSpacing, bool backface, Color tint);
+ static void DrawText3D(Font font, const char *text, Vector3 position, float fontSize, float fontSpacing, float lineSpacing, bool backface, Color tint);
 
-//  static Vector3 MeasureText3D(Font font, const char *text, float fontSize, float fontSpacing, float lineSpacing);
+ static Vector3 MeasureText3D(Font font, const char *text, float fontSize, float fontSpacing, float lineSpacing);
 
 
 
 int main() {
 
-    cout << "Zero page address!" << endl;
+//    cout << "Zero page address!" << endl;
 
 //    Color TEST = Color{20, 160, 133, 255};
 
@@ -27,11 +27,12 @@ int main() {
 
     bool debugMode = false;
 
-    InitWindow(screenWidth, screenHeight, "My raylib game!");
+    InitWindow(GetScreenWidth(), GetScreenHeight(), "TEST");
     InitAudioDevice();
     SetConfigFlags(FLAG_VSYNC_HINT);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
     SetWindowState(FLAG_BORDERLESS_WINDOWED_MODE);
+
     SetTargetFPS(60);
 
 ///////////////////
@@ -64,7 +65,7 @@ int main() {
 
 //        DisableCursor();
      
-        if (IsKeyPressed(KEY_ENTER) && IsKeyPressed(KEY_LEFT_ALT))
+        if (IsKeyPressed(KEY_ENTER) && IsKeyDown(KEY_LEFT_ALT))
             ToggleBorderlessWindowed();
 
 //        if (IsKeyPressed(KEY_F1))
@@ -73,6 +74,9 @@ int main() {
         bool* pDebugMode = &debugMode;
 
         ClearBackground(WHITE);
+
+//////////////////////////
+
         BeginDrawing();
         frontend.mFrontend();
 
@@ -85,6 +89,8 @@ int main() {
 //        player.Draw();
         // DrawText("sample text", 190, 200, 20, LIGHTGRAY);
 //        camera.DeInitCamera();
+        EndMode2D();
+
         EndDrawing();
     }
 

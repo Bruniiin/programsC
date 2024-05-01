@@ -18,7 +18,7 @@ class Frontend {
         Text3D textUtils;
         Game game;
         float CurrentTime;
-        float Time;
+        double Time;
         // bool OpeningScene;
         // bool Mode3D;
         // bool Mode2D;
@@ -43,25 +43,59 @@ class Frontend {
 
 
         typedef struct {
-        char Title[128] = "Pressione qualquer botão.";
+        char Title[128] = "    Pressione qualquer botão.";
         } Dialog;
         Dialog dialog;
 
         typedef struct {
-            char Config0[32] = "Vídeo";
-            char Config1[32] = "Áudio";
-            char Config2[32] = "Controles";
-            char Config3[32] = "Acessibilidade";
+            char Type0[32] = "Vídeo";
+            char Type1[32] = "Áudio";
+            char Type2[32] = "Controles";
+            char Type3[32] = "Acessibilidade";
         } Config;
         Config type;
 
         typedef struct {
-            char Config0[32] = "Video";
-            char Config1[32] = "Audio";
-            char Config2[32] = "Controls";
-            char Config3[32] = "Accessibility";
+            char Type0[32] = "Video";
+            char Type1[32] = "Audio";
+            char Type2[32] = "Controls";
+            char Type3[32] = "Accessibility";
         } ConfigEng;
         ConfigEng typeEng;
+
+        typedef struct {
+            char Option0[32] = "Novo Jogo";
+            char Option1[32] = "Configurações de Jogo";
+            char Option2[32] = "Fechar Jogo";
+        } Option;
+        Option option;
+
+        typedef struct {
+            char Option0[32] = "New Game";
+            char Option1[32] = "Options";
+            char Option2[32] = "Exit Game";
+        } OptionEng;
+        OptionEng optionEng;
+
+        typedef struct {
+            char Video1[32] = "Sincronização Vertical";
+            char Video2[32] = "Janela sem Borda";
+            char Video3[32] = "Limite de Quadros";
+            // char Video4[32] = 
+            // char Video5[32] = 
+            // char Video6[32] = 
+        } Video;
+        Video video;
+
+        typedef struct {
+            char Video1[32] = "Vertical Sync";
+            char Video2[32] = "Borderless Fullscreen";
+            char Video3[32] = "Framerate Limit";
+            // char Video4[32] = 
+            // char Video5[32] = 
+            // char Video6[32] = 
+        } VideoEng;
+        VideoEng videoEng;
 
         typedef struct {
             bool VideoSettings;
@@ -75,6 +109,23 @@ class Frontend {
         bool Mode2D;
         bool Mode3D;
         bool MenuMode;
+
+        bool isOnVsync;
+        bool isOnBorderless;
+        bool isBorderlessChecked;
+
+        bool guiEditMode001;
+        bool guiEditMode002;
+
+        int resolutionSelected;
+        int framerateSelected;
+        int defaultResWidth;
+        int defaultResHeight;
+
+        bool gotDefaultResolution;
+        bool resolutionSet;
+        bool caseSet;
+        int monitor = 0;
 
 //        bool* pMode2D = &mode.Mode2D;
 

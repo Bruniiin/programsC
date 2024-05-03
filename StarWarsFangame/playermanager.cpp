@@ -90,17 +90,12 @@ PlayerManager::PlayerManager() {
 
     pistol = (Weapon)
     {
-        .weapon = LoadTexture("graphics/testsprite.png"),
+        .weapon = LoadTexture("graphics/pistol.png"),
         .isAlive = true,
         .isActive = false,
+        .isRanged = true,
         .weapontype = WPN_PISTOL,
     };
-
-
-
-/////////////////////
-
-    Map01 = LoadTexture("graphics/testmap.png");
 
 }
 
@@ -114,7 +109,7 @@ void PlayerManager::Draw() {
 //    DisableCursor();
 
     if(GameMode) { BeginTextureMode(CameraP1); }
-//    else { BeginTextureMode(CameraP1fullscr); }
+    else { BeginTextureMode(CameraP1fullscr); }
 
         ClearBackground(WHITE);
         BeginMode2D(cameraposp1);
@@ -161,6 +156,7 @@ void PlayerManager::Draw() {
         DrawText("HUD P1", 10, 10, 50, RED); // debug text
         DrawText(TextFormat("Health: %d", player01.Health), 10, 128, 30, RED);
         DrawText(TextFormat("Weapon: %s", WeaponChar[player01.weapon]), 10, 256, 30, RED);
+        return;
     }
 
     if(GameMode)
@@ -193,7 +189,7 @@ void PlayerManager::RenderManager() { // paint.net me ajudou com as coordenadas
 
         // cenário
 
-        DrawTexture(Map01, 0, 0, WHITE);
+        tilemap.Render();
 
         // instâncias
 
@@ -269,11 +265,11 @@ if(player01.isAlive)
             }
             if(IsGamepadButtonDown(GamepadP2, GAMEPAD_BUTTON_LEFT_FACE_DOWN))
             {
-                player02.playerPos.y += player02.playerVelocity * velocityModifier;         
+                player02.playerPos.y += player02.playerVelocity * velocityModifier;      
             }
             if(IsGamepadButtonDown(GamepadP2, GAMEPAD_BUTTON_LEFT_FACE_RIGHT))
             {
-                player02.playerPos.x += player02.playerVelocity * velocityModifier;        
+                player02.playerPos.x += player02.playerVelocity * velocityModifier;      
             }
             
             player02.isFiringWeapon = IsGamepadButtonDown(GamepadP2, GAMEPAD_BUTTON_RIGHT_TRIGGER_1);

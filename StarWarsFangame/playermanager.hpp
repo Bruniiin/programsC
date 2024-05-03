@@ -1,6 +1,7 @@
 #pragma once
 #include <raylib.h>
 #include <vector>
+#include "tilemapmanager.hpp"
 
 class PlayerManager {
 
@@ -66,10 +67,11 @@ typedef enum {
 
         typedef struct {
             Vector2 weaponPos;
-            Texture2D weaponTex;
+            Texture2D weapon;
             bool isAlive;
             bool isActive;
-            WeaponType weapon;
+            bool isRanged;
+            WeaponType weapontype;
         } Weapon;
 
         Weapon pistol;
@@ -113,5 +115,6 @@ typedef enum {
 
         Texture2D mouse;
 
+        TilemapManager tilemap;
 
 };

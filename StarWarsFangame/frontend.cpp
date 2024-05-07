@@ -3,6 +3,9 @@
 #include "frontend.hpp"
 #include <iostream>
 #include <raygui.h>
+#include <math.h>
+
+
 
     using namespace std;
 
@@ -54,7 +57,13 @@ Frontend::Frontend() {
     guiEditMode001 = false;
     guiEditMode002 = false;
 
+    caseSet = false;
+    resolutionSet = false;
+
     gotDefaultResolution = false;
+
+    Rec001 = {550, 350, 320, 320};
+    Rec002 = {1050, 350, 320, 320};
 
 }
 
@@ -103,7 +112,7 @@ void Frontend::MainFrontend() {
     switch(MainMenu) 
     {
         case true:
-            if (GuiButton((Rectangle){960 - centerOffset, 600, 125, 30}, option.Option0)) OpeningScene = true, Mode3D = true, Mode2D = false; //x, y, width, height
+            if (GuiButton((Rectangle){960 - centerOffset, 600, 125, 30}, option.Option0)) StartGame = !StartGame; //OpeningScene = true, Mode3D = true, Mode2D = false; //x, y, width, height
             if (GuiButton((Rectangle){960 - centerOffset, 650, 125, 30}, option.Option1)) IsSettings = !IsSettings;
             if (GuiButton((Rectangle){960 - centerOffset, 700, 125, 30}, option.Option2)) CloseWindow();
             
@@ -126,6 +135,111 @@ void Frontend::MainFrontend() {
             DrawTextEx(GetFontDefault(), dialog.Title, title, 10.f, 5.f, Fade(WHITE, alphaTitle));
             DrawText("TITLE SCREEN ON", 50, 50, 5.f, WHITE);
         break;
+    }
+
+    if(StartGame)
+    {
+        mouseCoordsX = GetMouseX();
+        mouseCoordsY = GetMouseY();
+
+        mousePos = {mouseCoordsX, mouseCoordsY};
+
+        // DrawRectangle
+        // (100 + 450, 100 + 250, 320, 320, Fade(WHITE, sAlpha));
+        DrawRectangle
+        (100, 100, 1920 - 200, 1080 - 200, BLACK);
+        DrawRectangleRec
+        (Rec001, Fade(WHITE, sAlpha));
+        DrawRectangleRec
+        (Rec002, Fade(WHITE, sAlpha));
+        DrawText
+        ("Escolha sua equipe:", GetScreenWidth()/2 - 128, GetScreenHeight()/2 + 256, 20, WHITE);
+        DrawText
+        ("Império", 800, 700, 20, WHITE);
+        DrawText
+        ("Rebeldes", 1000, 700, 20, WHITE);
+
+        sAlpha = ((mouseCoordsX > Rec001.x && mouseCoordsX < Rec001.x + Rec001.width) || (mouseCoordsX > Rec002.x && mouseCoordsX < Rec002.x + Rec002.width)) 
+        ? 0.5f 
+        : 1.0f;
+        
+        Check001 = CheckCollisionPointRec(mousePos, Rec001);
+        Check002 = CheckCollisionPointRec(mousePos, Rec002);
+
+        if(Check001)
+        { 
+            if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) 
+            {
+                game.Empire.PLY = 0;
+                isCampaignSelected = 1; // begin state machine!
+            }
+        }
+        else if(Check002) // usando o famoso else if
+        {
+            if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) 
+            {
+                game.Empire.PLY = 1;
+                isCampaignSelected = 1;  
+            }
+        }
+
+        switch(isCampaignSelected)
+        {
+            case 1:
+                DrawRectangle
+                (100, 100, 1920 - 200, 1080 - 200, BLACK);
+                DrawText
+                ("Escolha a campanha:", 840, 200, 20, WHITE);
+                // DrawText
+                // ();
+                if(GuiButton((Rectangle){860, 500, 125, 30}, "Battle of Hoth")) game.Campaign[4] = (1), isCampaignSelected = 2;
+                if(GuiButton((Rectangle){860, 500 + 50, 125, 30}, "Battle of Yavin-4")) game.Campaign[4] = (2), isCampaignSelected = 2;
+                // if(GuiButton((Rectangle){860, 500 + 100, 125, 30}, "Battle of Bespin"));
+            break;
+            case 2:
+                DrawRectangle
+                (100, 100, 1920 - 200, 1080 - 200, BLACK);
+                if(IsGamepadAvailable(0))
+                {
+                    DrawText
+                    (TextFormat("Pressione %d para começar", ButtonStart), GetScreenWidth()/2, GetScreenHeight()/2, 20, WHITE);
+                    if(IsGamepadButtonDown(0, GAMEPAD_BUTTON_MIDDLE_RIGHT))
+                    {
+                        MenuMode = false;
+                    }
+                }
+                else
+                {
+                    DrawText
+                    (TextFormat("Pressione %d para começar", KeyEnter), GetScreenWidth()/2, GetScreenHeight()/2, 20, WHITE);
+                    if(IsKeyPressed(KEY_ENTER))
+                    {
+                        MenuMode = false;
+                    }
+                }
+            break;
+            default:
+            break;
+        };
+        
+
+        // else if (Check002) 
+        // {
+            
+        // }
+
+
+        
+
+        // if((mouseposx > 550 && mouseposx < 870) || (mouseposx > 1050 && mouseposx < 1370))
+        // {
+        //     sAlpha = 0.5f;
+        // }
+        // else
+        // {
+        //     sAlpha = 1.f;
+        // }
+        
     }
 
 }
@@ -160,15 +274,6 @@ void Frontend::mFrontend() {
         }
 //    }
 
-    if(StartGame)
-    {
-        Mode2D = true;
-        Mode3D = false;
-        OpeningScene = false;
-        MenuMode = false;
-        StartGame = false;
-    }
-
     if(Mode2D)
     {
 //        Mode2D = false;
@@ -196,7 +301,7 @@ void Frontend::Settings() {
     int widthOffset = 2 << 8;
 
     char *resolution = {"Atual: %dx%d;1280x720;1366x768;1920x1080;2560x1440;3840x2160"}; //resoluções comuns/common resolutions
-    char *framerate = {"Atual: %d FPS;60 FPS;120 FPS; 240 FPS"};
+    char *framerate = {"Atual: %d FPS;60 FPS;120 FPS; 144 FPS; 240 FPS"};
 
     DrawText(TextFormat("Resolution: %dx%d", GetScreenWidth(), GetScreenHeight()), 50, 50, 30, WHITE); //debug
     //    DrawText(TextFormat(resolution, GetScreenHeight()), 50, 100, 30, WHITE); //debug
@@ -226,39 +331,105 @@ void Frontend::Settings() {
         {
             case 0:
                 SetWindowSize(GetScreenWidth(), GetScreenHeight());
+                caseSet = false;
             break;
             case 1:
-                caseSet = false; if(caseSet == false) { resolutionSet = false; }
                 SetWindowSize(1280, 720);
-                    if(defaultResWidth < 1280 && defaultResHeight < 720) { if(!resolutionSet) { SetWindowSize(defaultResWidth, defaultResHeight); resolutionSet = true; } }
-                caseSet = true;
+                if(caseSet == false)
+                {
+                    if(defaultResWidth < 1280 && defaultResHeight < 720) 
+                    { 
+                        SetWindowSize(defaultResWidth, defaultResHeight); 
+                        caseSet = true;
+                    }
+                }
+                if(caseSet == true)
+                {
+                    resolutionSelected = 0;
+                }
             break;
             case 2:
-                caseSet = false; if(caseSet == false) { resolutionSet = false; }
                 SetWindowSize(1366, 768);
-                    if(defaultResWidth < 1366 && defaultResHeight < 768) { if(!resolutionSet) { SetWindowSize(defaultResWidth, defaultResHeight); resolutionSet = true; } }
-                caseSet = true;
+                if(caseSet == false)
+                {
+                    if(defaultResWidth < 1366 && defaultResHeight < 768) 
+                    { 
+                        SetWindowSize(defaultResWidth, defaultResHeight);
+                        caseSet = true;
+                    }
+                }
+                if(caseSet == true)
+                {
+                    resolutionSelected = 0;
+                }
             break;
             case 3:
-                caseSet = false; if(caseSet == false) { resolutionSet = false; }
                 SetWindowSize(1920, 1080);
-                    if(defaultResWidth < 1920 && defaultResHeight < 1080) { if(!resolutionSet) { SetWindowSize(defaultResWidth, defaultResHeight); resolutionSet = true; } }
-                caseSet = true;
+                if(caseSet == false)
+                {
+                    if(defaultResWidth < 1920 && defaultResHeight < 1080) 
+                    { 
+                        SetWindowSize(defaultResWidth, defaultResHeight);
+                        caseSet = true;
+                    }
+                }
+                if(caseSet == true)
+                {
+                    resolutionSelected = 0;
+                }
             break;
             case 4:
-                caseSet = false; if(caseSet == false) { resolutionSet = false; }
                 SetWindowSize(2560, 1440);
-                    if(defaultResWidth < 2560 && defaultResHeight < 1440) { if(!resolutionSet) { SetWindowSize(defaultResWidth, defaultResHeight); resolutionSet = true; } }
-                caseSet = true;
+                if(caseSet == false)
+                {
+                    if(defaultResWidth < 2560 && defaultResHeight < 1440) 
+                    {
+                        SetWindowSize(defaultResWidth, defaultResHeight); 
+                        caseSet = true;
+                    }
+                }
+                if(caseSet == true)
+                {
+                    resolutionSelected = 0;
+                }
             break;
             case 5:
-                caseSet = false; if(caseSet == false) { resolutionSet = false; }
                 SetWindowSize(3840, 2160);
-                    if(defaultResWidth < 3840 && defaultResHeight < 2160) { if(!resolutionSet) { SetWindowSize(defaultResWidth, defaultResHeight); resolutionSet = true; } }
-                 = true;
+                if(caseSet == false)
+                {
+                    if(defaultResWidth < 3840 && defaultResHeight < 2160) 
+                    { 
+                        SetWindowSize(defaultResWidth, defaultResHeight);
+                        caseSet = true; 
+                    }
+                }
+                if(caseSet == true)
+                {
+                    resolutionSelected = 0;
+                }
             break;
         }
     
+        switch(framerateSelected)
+        {
+            case 0:
+            break;
+            case 1:
+                SetTargetFPS(60);
+            break;
+            case 2:
+                SetTargetFPS(120);
+            break;
+            case 3:
+                SetTargetFPS(144);
+            break;
+            case 4:
+                SetTargetFPS(240);
+            break;
+        }
+
+
+
         if(isOnBorderless && !isBorderlessChecked)
         {
             ToggleBorderlessWindowed();
@@ -272,21 +443,27 @@ void Frontend::Settings() {
 
         if(!isOnVsync) 
         {
-            if(IsWindowState(FLAG_VSYNC_HINT)) ClearWindowState(FLAG_VSYNC_HINT);
+            if(IsWindowState(FLAG_VSYNC_HINT)) 
+            ClearWindowState(FLAG_VSYNC_HINT);
         }
-        else { SetWindowState(FLAG_VSYNC_HINT); }
+        else 
+        { 
+            SetWindowState(FLAG_VSYNC_HINT);
+        }
     
     }
 
     if(settings.AudioSettings)
     {
-        DrawRectangle(widthOffset, GetScreenHeight() /4, 200, 300, Fade(WHITE, 0.5f));
+        DrawRectangle
+        (widthOffset, GetScreenHeight() /4, 200, 300, Fade(WHITE, 0.5f));
 
     }
 
     if(settings.InputSettings)
     {
-        DrawRectangle(widthOffset, GetScreenHeight() /5, 200, 300, Fade(WHITE, 0.5f));
+        DrawRectangle
+        (widthOffset, GetScreenHeight() /5, 200, 300, Fade(WHITE, 0.5f));
 
     }
 

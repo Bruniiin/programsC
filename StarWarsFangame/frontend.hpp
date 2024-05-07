@@ -3,6 +3,7 @@
 #include "scene.hpp"
 #include "text3d.hpp"
 #include "game.hpp"
+#include "playermanager.hpp"
 
 class Frontend {
 
@@ -39,11 +40,12 @@ class Frontend {
         bool textBoxEditMode = false;
         Rectangle Gui;
         bool StartGame;
-        char TitleEng[128] = "    Press any button.";
+
 
 
         typedef struct {
         char Title[128] = "    Pressione qualquer botão.";
+        char TitleEng[128] = "    Press any button.";
         } Dialog;
         Dialog dialog;
 
@@ -105,6 +107,9 @@ class Frontend {
         } SettingsWindow;
         SettingsWindow settings;
 
+        typedef struct {
+        } sFrontend;
+
         bool OpeningScene;
         bool Mode2D;
         bool Mode3D;
@@ -125,7 +130,30 @@ class Frontend {
         bool gotDefaultResolution;
         bool resolutionSet;
         bool caseSet;
+        
         int monitor = 0;
+
+        float sAlpha = 0.5f;
+
+        Rectangle Rec001;
+        Rectangle Rec002;
+
+        bool Coll001;
+
+        bool Check001;
+        bool Check002;
+
+        Vector2 mousePos;
+
+        float mouseCoordsX;
+        float mouseCoordsY;
+
+        char* KeyEnter = "Enter";
+        char* ButtonStart = "Start";
+
+        int isCampaignSelected;
+
+        PlayerManager player;
 
 //        bool* pMode2D = &mode.Mode2D;
 

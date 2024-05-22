@@ -3,7 +3,7 @@
 #include "frontend.hpp"
 #include <iostream>
 #include <raygui.h>
-#include <math.h>
+//#include <math.h>
 
 
 
@@ -30,6 +30,9 @@ Frontend::Frontend() {
     background = LoadTexture("graphics/backgroundmenu.png");
     logo = LoadTexture("graphics/logotransparent2size.png");
     
+    sEmpire = LoadTexture("graphics/Emblem_of_the_First_Galactic_Empire.png");
+    sRebels = LoadTexture("graphics/Rebel_Alliance_logo.png");
+
 //    this->background = background;
 
     MainMenu = false;
@@ -54,16 +57,27 @@ Frontend::Frontend() {
     isBorderlessChecked = true;
 
     resolutionSelected = 0;
+    framerateSelected = 0;
     guiEditMode001 = false;
     guiEditMode002 = false;
 
     caseSet = false;
     resolutionSet = false;
 
-    gotDefaultResolution = false;
+    isCampaignSelected = 0;
+
+    vDefaultResolution = false;
 
     Rec001 = {550, 350, 320, 320};
     Rec002 = {1050, 350, 320, 320};
+
+    //game.Campaign = 0;
+
+    SetMasterVolume(100);
+
+    AudioVolume = 100.f;
+
+    // SetMasterVolume(100.f);
 
 }
 
@@ -106,8 +120,12 @@ void Frontend::MainFrontend() {
         }
     }
 
-//  DrawRectanglePro(rec, (Vector2){, 0}, 0, Fade(WHITE, 0.5f));
-//  Rectangle rec = {screenWidth/2, screenHeight/2, 100, 40};
+    hasKeyBeenPressed = (GetKeyPressed()) 
+    ? true 
+    : false;
+    hasKeyBeenPressed = (GetGamepadButtonPressed())
+    ? false 
+    : true;
 
     switch(MainMenu) 
     {
@@ -115,7 +133,8 @@ void Frontend::MainFrontend() {
             if (GuiButton((Rectangle){960 - centerOffset, 600, 125, 30}, option.Option0)) StartGame = !StartGame; //OpeningScene = true, Mode3D = true, Mode2D = false; //x, y, width, height
             if (GuiButton((Rectangle){960 - centerOffset, 650, 125, 30}, option.Option1)) IsSettings = !IsSettings;
             if (GuiButton((Rectangle){960 - centerOffset, 700, 125, 30}, option.Option2)) CloseWindow();
-            
+            DrawText("MAIN MENU SCREEN ON", 50, 50, 5.f, WHITE);            
+
             if (IsSettings)
             {
                 DrawRectangle(GetScreenWidth() /2 - 300, GetScreenHeight() /2 - 40, 200, 300, Fade(WHITE, 0.5f));
@@ -147,7 +166,7 @@ void Frontend::MainFrontend() {
         // DrawRectangle
         // (100 + 450, 100 + 250, 320, 320, Fade(WHITE, sAlpha));
         DrawRectangle
-        (100, 100, 1920 - 200, 1080 - 200, BLACK);
+        (100, 100, GetScreenWidth() - 200, GetScreenHeight() - 200, BLACK);
         DrawRectangleRec
         (Rec001, Fade(WHITE, sAlpha));
         DrawRectangleRec
@@ -159,12 +178,19 @@ void Frontend::MainFrontend() {
         DrawText
         ("Rebeldes", 1000, 700, 20, WHITE);
 
-        sAlpha = ((mouseCoordsX > Rec001.x && mouseCoordsX < Rec001.x + Rec001.width) || (mouseCoordsX > Rec002.x && mouseCoordsX < Rec002.x + Rec002.width)) 
+        sAlpha = ((mouseCoordsX > Rec001.x && mouseCoordsX < Rec001.x + Rec001.width && mouseCoordsY > Rec001.y && mouseCoordsY < Rec001.y + Rec001.height) || (mouseCoordsX > Rec002.x && mouseCoordsX < Rec002.x + Rec002.width && mouseCoordsY > Rec002.y && mouseCoordsY < Rec002.y + Rec002.height)) 
         ? 0.5f 
         : 1.0f;
-        
+
+        DrawTextureRec
+        (sEmpire, Rec001, (Vector2){Rec001.x, Rec001.y}, WHITE);
+        DrawTextureRec
+        (sRebels, Rec002, (Vector2){Rec002.x, Rec002.y}, WHITE);        
+
         Check001 = CheckCollisionPointRec(mousePos, Rec001);
         Check002 = CheckCollisionPointRec(mousePos, Rec002);
+
+
 
         if(Check001)
         { 
@@ -174,7 +200,7 @@ void Frontend::MainFrontend() {
                 isCampaignSelected = 1; // begin state machine!
             }
         }
-        else if(Check002) // usando o famoso else if
+        else if(Check002) // usando o famoso else if ;)
         {
             if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) 
             {
@@ -187,49 +213,60 @@ void Frontend::MainFrontend() {
         {
             case 1:
                 DrawRectangle
-                (100, 100, 1920 - 200, 1080 - 200, BLACK);
+                (100, 100, GetScreenWidth() - 200, GetScreenHeight() - 200, BLACK);
+                DrawText
+                ("Quantidade de jogadores:", 840, 200, 20, WHITE);
+
+                if(GuiButton((Rectangle){860, 500, 125, 125}, "1 Jogador")) game.Players = 1, isCampaignSelected = 2;
+                if(GuiButton((Rectangle){985, 500, 125, 125}, "2 Jogador")) game.Players = 2, isCampaignSelected = 2;
+                if(GuiButton((Rectangle){860, 500 + 125, 125, 125}, "3 Jogadores")) game.Players = 3, isCampaignSelected = 2;
+                if(GuiButton((Rectangle){985, 500 + 125, 125, 125}, "4 Jogadores")) game.Players = 4, isCampaignSelected = 2;
+            break;
+            case 2:
+                DrawRectangle
+                (100, 100, GetScreenWidth() - 200, GetScreenHeight() - 200, BLACK);
                 DrawText
                 ("Escolha a campanha:", 840, 200, 20, WHITE);
                 // DrawText
                 // ();
-                if(GuiButton((Rectangle){860, 500, 125, 30}, "Battle of Hoth")) game.Campaign[4] = (1), isCampaignSelected = 2;
-                if(GuiButton((Rectangle){860, 500 + 50, 125, 30}, "Battle of Yavin-4")) game.Campaign[4] = (2), isCampaignSelected = 2;
+                if(GuiButton((Rectangle){860, 500, 125, 30}, "Battle of Hoth")) game.Campaign = 1, isCampaignSelected = 3;
+                if(GuiButton((Rectangle){860, 500 + 50, 125, 30}, "Battle of Yavin-4")) game.Campaign = 2, isCampaignSelected = 3;
                 // if(GuiButton((Rectangle){860, 500 + 100, 125, 30}, "Battle of Bespin"));
             break;
-            case 2:
+            case 3:
+                textUtils.Campaign = game.Campaign;
                 DrawRectangle
-                (100, 100, 1920 - 200, 1080 - 200, BLACK);
-                if(IsGamepadAvailable(0))
+                (100, 100, GetScreenWidth() - 200, GetScreenHeight() - 200, BLACK);
+                if(IsGamepadAvailable(0) && hasKeyBeenPressed == false)
                 {
                     DrawText
-                    (TextFormat("Pressione %d para começar", ButtonStart), GetScreenWidth()/2, GetScreenHeight()/2, 20, WHITE);
+                    (TextFormat("Pressione %s para começar", ButtonStart), GetScreenWidth()/2, GetScreenHeight()/2, 20, WHITE);
                     if(IsGamepadButtonDown(0, GAMEPAD_BUTTON_MIDDLE_RIGHT))
                     {
-                        MenuMode = false;
+                        Mode2D = false;
+                        StartGame = false;
+                        OpeningScene = true;
                     }
                 }
                 else
                 {
                     DrawText
-                    (TextFormat("Pressione %d para começar", KeyEnter), GetScreenWidth()/2, GetScreenHeight()/2, 20, WHITE);
+                    (TextFormat("Pressione %s para começar", KeyEnter), GetScreenWidth()/2, GetScreenHeight()/2, 20, WHITE);
                     if(IsKeyPressed(KEY_ENTER))
                     {
-                        MenuMode = false;
+                        Mode2D = false;
+                        StartGame = false;
+                        OpeningScene = true;
                     }
                 }
             break;
             default:
             break;
         };
-        
-
-        // else if (Check002) 
-        // {
-            
-        // }
 
 
-        
+
+
 
         // if((mouseposx > 550 && mouseposx < 870) || (mouseposx > 1050 && mouseposx < 1370))
         // {
@@ -244,9 +281,7 @@ void Frontend::MainFrontend() {
 
 }
 
-void Frontend::mFrontend() {
-
-
+void Frontend::DefaultFrontend() {
 
 //    float CurrentTime = GetTime();
 
@@ -255,28 +290,30 @@ void Frontend::mFrontend() {
     //     Mode2D = true;
     // }
 
-//    if(!MenuMode)
-//    {
         if(OpeningScene) // && CurrentTime < 90.0f) 
         {
-//        OpeningScene = true;
-        DisableCursor();
+        // OpeningScene = true;
+        // StartGame = false;
+        // DisableCursor();
         Time += 0.01f;
         scene.OpeningBegin();
         textUtils.Draw();
         scene.SceneDebug();
 
-            if(Time > 0.0f) // 60 segundos.
+
+            if((Time > 80.0f) || (scene.SceneSkipped == true)) // 80 segundos.
             {
-                StartGame = true;
-                EnableCursor();
+                OpeningScene = false;
+                MenuMode = false;
+                Mode2D = true;
+
+                // EnableCursor();
             }
         }
 //    }
 
     if(Mode2D)
     {
-//        Mode2D = false;
 
         switch(MenuMode)
         {
@@ -284,8 +321,9 @@ void Frontend::mFrontend() {
             MainFrontend();
             break;    
             case false:   
-            game.GameBegin();
+            game.GameRun();
             // game.TilemapManager();
+            // MenuMode = (player.isGameDone) ? true : false;
             break;
         }
 
@@ -300,8 +338,8 @@ void Frontend::Settings() {
 
     int widthOffset = 2 << 8;
 
-    char *resolution = {"Atual: %dx%d;1280x720;1366x768;1920x1080;2560x1440;3840x2160"}; //resoluções comuns/common resolutions
-    char *framerate = {"Atual: %d FPS;60 FPS;120 FPS; 144 FPS; 240 FPS"};
+    char* resolution = {"Atual: %dx%d;1280x720;1366x768;1920x1080;2560x1440;3840x2160"}; //resoluções comuns/common resolutions
+    char* framerate = {"Atual: %d FPS;60 FPS;120 FPS; 144 FPS; 240 FPS"};
 
     DrawText(TextFormat("Resolution: %dx%d", GetScreenWidth(), GetScreenHeight()), 50, 50, 30, WHITE); //debug
     //    DrawText(TextFormat(resolution, GetScreenHeight()), 50, 100, 30, WHITE); //debug
@@ -310,11 +348,11 @@ void Frontend::Settings() {
     {
         if(guiEditMode001 || guiEditMode002) GuiLock();
 
-        if(!gotDefaultResolution)
+        if(!vDefaultResolution)
         {
         defaultResWidth = GetMonitorWidth(monitor);
         defaultResHeight = GetMonitorHeight(monitor);
-        gotDefaultResolution = true;        
+        vDefaultResolution = true;        
         }
 
         DrawText(TextFormat("WINDOW: %d", isOnBorderless), 10, 10, 30, WHITE); // debug
@@ -412,8 +450,6 @@ void Frontend::Settings() {
     
         switch(framerateSelected)
         {
-            case 0:
-            break;
             case 1:
                 SetTargetFPS(60);
             break;
@@ -443,8 +479,7 @@ void Frontend::Settings() {
 
         if(!isOnVsync) 
         {
-            if(IsWindowState(FLAG_VSYNC_HINT)) 
-            ClearWindowState(FLAG_VSYNC_HINT);
+            if(IsWindowState(FLAG_VSYNC_HINT)) ClearWindowState(FLAG_VSYNC_HINT);
         }
         else 
         { 
@@ -453,18 +488,23 @@ void Frontend::Settings() {
     
     }
 
+
+
     if(settings.AudioSettings)
     {
+        SetMasterVolume
+        (AudioVolume);
         DrawRectangle
         (widthOffset, GetScreenHeight() /4, 200, 300, Fade(WHITE, 0.5f));
-
+        // GuiToggleSlider((Rectangle){512, 256, 120, 30}, "Áudio", &setAudioVolume);
+        GuiSliderBar
+        ((Rectangle){512, 256, 120, 30}, "Áudio Geral", TextFormat("%2.2f", &AudioVolume), &AudioVolume, 0, 100);
     }
 
     if(settings.InputSettings)
     {
         DrawRectangle
         (widthOffset, GetScreenHeight() /5, 200, 300, Fade(WHITE, 0.5f));
-
     }
 
     // if(isOnVsync)

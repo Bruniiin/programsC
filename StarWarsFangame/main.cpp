@@ -5,6 +5,7 @@
 #include "text3d.hpp"
 #include "cameram.hpp"
 #include "frontend.hpp"
+#include "laser.hpp"
 
  using namespace std;
 
@@ -25,15 +26,17 @@ int main() {
     const int screenWidth = 1920;
     const int screenHeight = 1080;
 
+    float MousePosX;
+    float MousePosY;
+
     bool debugMode = false;
 
-    InitWindow(GetScreenWidth(), GetScreenHeight(), "TEST");
+    InitWindow(GetScreenWidth(), GetScreenHeight(), "My raylib game!");
     InitAudioDevice();
     SetConfigFlags(FLAG_VSYNC_HINT);
-    SetConfigFlags(FLAG_MSAA_4X_HINT);
+//    SetConfigFlags(FLAG_MSAA_4X_HINT);
     SetWindowState(FLAG_BORDERLESS_WINDOWED_MODE);
-
-    SetTargetFPS(60);
+    SetTargetFPS(120);
 
 ///////////////////
 
@@ -57,16 +60,23 @@ int main() {
     Text3D sceneUtils;
     Frontend frontend;
 
+    // Laser laser = Laser({200, 200}, 7);
+
+
+    
+
+
     bool CurrentTime = GetTime();
 
     while (!WindowShouldClose())
     {   
 
-
-//        DisableCursor();
-     
         if (IsKeyPressed(KEY_ENTER) && IsKeyDown(KEY_LEFT_ALT))
             ToggleBorderlessWindowed();
+
+    MousePosX = GetMouseX();
+    MousePosY = GetMouseY();
+
 
 //        if (IsKeyPressed(KEY_F1))
 //            debugMode = true;
@@ -78,7 +88,18 @@ int main() {
 //////////////////////////
 
         BeginDrawing();
-        frontend.mFrontend();
+        frontend.DefaultFrontend();
+
+                // laser.Update();
+                // laser.Draw();
+
+
+    if(IsKeyDown(KEY_F2)) // visualização de coordenadas / coordinate viewer
+    {
+        DrawText(TextFormat("Position: %06.3f, %06.3f", MousePosX, MousePosY), 128, 128, 10, RED);
+    }
+
+    
 
 //        camera.InitCamera();
 //        scene.OpeningBegin(); // precisa de scene manager

@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include "text3d.hpp"
 #include <math.h>
+#include <iostream>
 
 using namespace std;
 
@@ -181,16 +182,47 @@ static Vector3 MeasureText3D(Font font, const char* text, float fontSize, float 
 
 Text3D::Text3D() {
 
+    // pt-br: É um período crítico para as forças rebeldes. Embora a Estrela da Morte tenha sido destruída, tropas imperiais
+    // conseguiram expulsar os rebeldes de sua base secreta e estão os perseguindo por toda a galáxia. 
+    // O Imperador ouviu rumores de uma base secreta rebelde no remoto planeta remoto de Hoth e o IMPÉRIO GALÁTICO enviou todas as suas forças lideradas
+    // por [PLAYER_EMPIRE] para encurralar os rebeldes.
+    // Liderando os rebeldes, [PLAYER_REBELLION] prepara sua defesa em um confronto que pode mudar o rumo de toda a galáxia...
+
+    // Em inglês pelas fontes não suportarem acentos ainda.
+
     Font font = GetFontDefault();
 
-    fontf = LoadFontEx("utils/newsgothicbold.otf", 100, NULL, 0);
+    fontf = LoadFontEx("utils/newsgothicbold.otf", 100, NULL, 0); // source: https://fontsinuse.com/uses/45329/star-wars-the-empire-strikes-back-opening-cra
+    fontfTitle = LoadFontEx("utils/newsgothicboldextracondensed.ttf", 200, NULL, 0);
 
     float Time = 0.0f;
+    int Size = 2 << 16; // 65536 caracteres
 
-    position = {-1.5f, 3.5f, 3.0f};
-    positionTitle = {-2.f, 3.5f, 3.5f};
+    position = {-2.f, 3.5f, 5.0f};
+    positionTitle001 = {-2.f, 3.5f, 5.5f};
+    positionTitle002 = {-2.f, 3.5f, 5.5f};
 
     alpha = 1.0f;
+
+    textTitleYavin001 = "A NEW HOPE";
+    textTitleHoth001 = "THE EMPIRE STRIKES BACK";
+
+    // text needs to be carefully spaced so as to line up properly in the center of the screen.
+
+    textHoth001 = "                    Episode V\n\n\n\n\n              BATTLE OF HOTH \nIt  is  a  dark  time for the Rebellion.\nAlthough  the DEATH STAR has been\ndestroyed,   Imperial    troops   have\ndriven  the  Rebel forces  from  their\nhidden   base   and   pursued   them\nacross the galaxy.\n\nTEST";
+    textYavin001 = "                   Episode IV\n\n\n\n\n     \nIt   is  a  period  of  civil war. Rebel\nspaceships,  striking  from  a hidden\nbase,  have won their first victory\nagainst the evil Galactic Empire.\n\nTEST";
+
+
+    P1 = "PLAYER1override";
+    P2 = "PLAYER2override"; 
+
+    AltColor = Color{202, 160, 0, 255};
+
+    fontSize = 25.0f;
+    fontSpacing = 0.5f;
+    fontSpacingTitle = 0.1f;
+    lineSpacing = -1.0f;
+    fontSizeTitle = 112.0f;
 
 // char text[64] = "A 3D Test \n TEST";
 //     Vector3 tbox = {0};
@@ -207,64 +239,66 @@ Text3D::~Text3D() {
 
 void Text3D::Draw() {
 
-    CurrentTime = GetTime();
+    CurrentTime += 0.01f;
 
-//    Scene scene;
-
-    char textTitle[32] = "THE EMPIRE STRIKES BACK";
-
-    int Size = 2 << 16; // 65536 caracteres.
-
-    char text[Size] = "            Episode V \n\n\n\n\n       BATTLE OF HOTH \n TEST E TEST \n TEST TEST \n TEST TEST \n TEST TEST \n TEST TEST \n TEST TEST \n TEST TEST \n TEST TEST \n TEST TEST \n TEST TEST \n TEST TEST";
     Vector3 tbox = {0};
     int layers = 2;
     int quads = 0;
     float layerdistance = 0.01f;
 
-    fontSize = 25.0f;
-    fontSpacing = 0.5f;
-    lineSpacing = -1.0f;
-    fontSizeTitle = 34.0f;
+    position.z -= 0.1425f * GetFrameTime();
+    positionTitle.z -= 0.1425f * GetFrameTime();
 
-    position.z -= 0.002f;
-    positionTitle.z -= 0.002f;
+    Vector3 MeasureText001;
+    Vector3 MeasureText002;
+    MeasureText001 = MeasureText3D(fontf, textTitleHoth001, fontSizeTitle, fontSpacing, lineSpacing);
+    MeasureText002 = MeasureText3D(fontf, textTitleYavin001, fontSizeTitle, fontSpacing, lineSpacing);
 
     rlPushMatrix();
-        rlRotatef(90.0f, 1.f, 0.f, 1.f);
-        rlRotatef(90.0f, 0.f, 0.f, -1.f);
-
-    if (CurrentTime > 0.f) 
     {
-        for (int i = 0; i < layers; ++i)
+            rlRotatef(90.0f, 1.f, 0.f, 1.f);
+            rlRotatef(90.0f, 0.f, 0.f, -1.f);
+
+        if (CurrentTime > 0.f) 
         {
-            DrawText3D(fontf, text, position, fontSize, fontSpacing, lineSpacing, true, Fade(YELLOW, alpha)); //(Vector3){0.f, 1.f, -2.5f}
-            DrawText3D(fontf, textTitle, positionTitle, fontSizeTitle, fontSpacing, lineSpacing, true, Fade(YELLOW, alpha));
+            for (int i = 0; i < layers; ++i)
+            {
+                switch(Campaign)
+                {
+                    case 1:
+                        DrawText3D(fontf, TextFormat(textHoth001, P1), position, fontSize, fontSpacing, lineSpacing, true, Fade(AltColor, alpha)); //(Vector3){0.f, 1.f, -2.5f}
+                        DrawText3D(fontfTitle, textTitleHoth001, positionTitle, fontSizeTitle, fontSpacingTitle, lineSpacing, true, Fade(AltColor, alpha));
+                    break;
+                    default:
+                        DrawText3D(fontf, TextFormat(textYavin001, P1), position, fontSize, fontSpacing, lineSpacing, true, Fade(AltColor, alpha));
+                        DrawText3D(fontfTitle, textTitleYavin001, positionTitle, fontSizeTitle, fontSpacingTitle, lineSpacing, true, Fade(AltColor, alpha));
+                    break;
+                }
+            }
         }
     }
     rlPopMatrix();
 
     EndMode3D();
 
-// Letterbox
-
-    DrawRectangle(0, 0, 1920, 130, BLACK);
-    DrawRectangle(0, 950, 1920, 130, BLACK);
-
-    if (CurrentTime > 70.f)
+    if (CurrentTime > 82.f)
     {
-        alpha -= GetTime() / 10;
+        alpha -= 0.005f;
+        // alpha -= GetTime() / 10;
     }
 
+// Letterbox
+
+    if(CurrentTime > 85.f)
+    {
+        RecSize001 -= 1;
+        RecSize002 += 1;
+    }
+
+    DrawRectangle
+    (0, 0, 1920, RecSize001, BLACK);
+    DrawRectangle
+    (0, RecSize002, 1920, 130, BLACK);
+
 }
-
-// Ignora
-
-// typedef struct {
-//     Vector2 position;
-// } Entity;
-
-// Entity player = { .position = {.x = 2, .y = 2}};
-
-
-// }
 

@@ -8,12 +8,13 @@
     using namespace std;
 
 Scene::Scene() {
-    Texture2D background = LoadTexture("graphics/background.png");
-    Texture2D logo = LoadTexture("graphics/star-wars-logo.png");
+    background = LoadTexture("graphics/backgroundalt.png");
+    logo = LoadTexture("graphics/star-wars-logo.png");
+    keyboard = LoadTexture("graphics/gdb-keyboard-key1.png");
     GenTextureMipmaps (&logo);
 
-    openingm = LoadMusicStream("audio/maintitle.mp3");
-//    PlayMusicStream(openingm);
+    openingm = LoadMusicStream("audio/Main Title.mp3");
+    PlayMusicStream(openingm);
 
 //    fontf = LoadFontEx("utils/newsgothicbold.otf", 100, NULL, 0);
 
@@ -32,26 +33,29 @@ Scene::Scene() {
 
 
    cameraVector3 = { 0 };
-   cameraVector3.position = (Vector3){5.f, 2.f, 5.f};
-   cameraVector3.target = (Vector3){0.f, 2.15f, 0.f};
+//    cameraVector3.position = (Vector3){5.f, 2.f, 5.f};
+//    cameraVector3.target = (Vector3){0.f, 2.f, 0.f};
+   cameraVector3.position = (Vector3){5.f, 0.f, 5.f};
+   cameraVector3.target = (Vector3){0.f, 2.5f, 0.f};
    cameraVector3.up = (Vector3){0.0f, 1.0f, 0.0f};
-   cameraVector3.fovy = 50.0f;
+   cameraVector3.fovy = 60.0f;
    cameraVector3.projection = CAMERA_PERSPECTIVE;
 
-//    camerat = { 0 };
-//    camerat.position = (Vector3){5.f, 2.f, 0.f};
-//    camerat.target = (Vector3){0.f, 2.f, 0.f};
-//    camerat.up = (Vector3){0.0f, 1.0f, 0.0f};
-//    camerat.fovy = 45.0f;
-//    camerat.projection = CAMERA_PERSPECTIVE;
+   cameraVector2 = { 0 };
+   cameraVector2.target = (Vector2){0.f, 2.f};
+   cameraVector2.zoom = 1.f;
 
    int camera_mode = CAMERA_ORBITAL;
 
-    position3 = {-10.f, 2.0f, -10.0f};
+    position3 = {-10.f, 10.0f, -10.0f};
 
     debugMode = false;
 
+    SceneSkipped = false;
+
     deconstructorCalled = false;
+
+    logoSizeVector3 = 5.f;
 
 //    target = LoadRenderTexture(800, 800);
 
@@ -80,7 +84,7 @@ Scene::~Scene() {
     UnloadTexture(background);
     UnloadTexture(logo);
     UnloadRenderTexture(target);
-    UnloadMusicStream(openingm);
+    // UnloadMusicStream(openingm);
 
 }
 
@@ -88,7 +92,7 @@ void Scene::OpeningBegin() {
 
 
 
-    BeginMode3D(cameraVector3);
+//    BeginMode3D(cameraVector3);
 
         // UpdateCameraPro(&cameraVector3,
         //     (Vector3){
@@ -131,26 +135,73 @@ void Scene::OpeningBegin() {
 
     if(currentTime > 1.0f) 
     { 
-        alpha -= GetTime() / 20;
+        alpha -= Time / 20;
     }
+
+    Time += GetFrameTime();
+    Time2 += 0.01f;
 
     float unloadTexture = 1800.0f;
 
     Vector2 position {GetScreenWidth() /2, GetScreenHeight() /2};
 
+    Vector3 position3logo {0.f, 0.f, 0.f};
 
-    Vector3 position3up {0.0f, 0.0f, 0.0f};
+    Vector3 position3up {0.f, 1.f, 0.f};
 
-    Rectangle logoRectangleVector3 = {0, 0, logo.width, logo.height};
+    Rectangle logoRectangleVector3 = {0, 0, logo.width, logo.height - 10};
 
     Rectangle logoRectangle = (Rectangle){0, 0, logo.width, logo.height};
-    Vector2 logoCenter = {logo.width/2 / GetTime(), logo.height/2 / GetTime()};
+    Vector2 logoCenter = {logo.width/2 / Time, logo.height/2 / Time};
+    // / GetTime();
 
-    float logoSizeVector3 = 5.f / GetTime();
+    float delta = GetFrameTime();
 
-    DrawBillboard(cameraVector3, background, position3, 20.0f, WHITE);
-    DrawBillboard(cameraVector3, logo, Vector3{0.f, 2.f, 0.f}, logoSizeVector3, Fade(WHITE, alpha));    
-//    DrawBillboardPro(camerat, logo, logoRectangleVector3, position3, position3up, (Vector2){1.0f, 1.0f}, (Vector2){0.f}, 0.f, Fade(WHITE, alpha));
+    logoSizeVector3 -= 0.75f * GetFrameTime();
+
+    if (logoSizeVector3 < 0.f)
+    {
+        logoSizeVector3 = 0.f;
+    }
+
+//    DrawBillboard(cameraVector3, background, position3, 30.0f, WHITE);
+//    DrawBillboard(cameraVector3, logo, Vector3{cameraVector3.target.x, cameraVector3.target.y, cameraVector3.target.z}, logoSizeVector3, Fade(WHITE, 0.f));    
+//    DrawBillboardPro(cameraVector3, logo, logoRectangleVector3, position3logo, position3up, (Vector2){5.0f, 5.0f}, (Vector2){logo.width/2, logo.height/2}, 0.f, Fade(WHITE, alpha)); //5.f 5.f is size, 0.f is origin and the last 0.f is rotation.
+//    DrawBillboardRec(cameraVector3, logo, logoRectangleVector3, position3logo, (Vector2){5.f, 5.f}, WHITE);
+
+//    EndMode3D();
+
+    BeginMode2D(cameraVector2); // 2D elements drawn after 3D elements are drawn.
+
+    DrawTexture(this->background, 0, 0, WHITE);
+    //DrawTexture(this->background, 0, 1920, WHITE);
+    DrawTexturePro(this->logo, logoRectangle, (Rectangle){float(position.x), float(position.y), float(logoRectangle.width) / Time, float(logoRectangle.height) / Time}, logoCenter, 0, Fade(WHITE, alpha)); // position = posição, logorectangle = tamanho    
+
+    // logoCenter.x -= 10.75f * GetFrameTime();
+    // logoCenter.y -= 10.75f * GetFrameTime();    
+    // logoRectangle.width -= 10.75f * GetFrameTime();    
+    // logoRectangle.height -= 10.75f * GetFrameTime(); 
+
+    if(Time2 > 0.f)
+    {
+        DrawTexture
+        (this->keyboard, 1780, 600, WHITE);
+        DrawText
+        ("Pular \nIntrodução", 1800, 630, 20, WHITE);
+            if(IsKeyPressed(KEY_ENTER))
+            {
+                SceneSkipped = true;
+            }
+    }
+
+    if(Time2 > 86.f && Time2 < 94.f)
+    {
+        cameraVector2.target.y += 1;
+    }
+
+//    EndMode2D();
+
+    BeginMode3D(cameraVector3);
 
 // Mesma coisa só que 2D
 
@@ -165,70 +216,61 @@ void Scene::OpeningBegin() {
 
 }
 
-    void Scene::TextBegin() { // texto 3D a fazer, por enquanto, texto 2D. Também preciso criar um método para modificar o texto dependendo das decisões dos jogadores.
+//     void Scene::TextBegin() { // texto 3D a fazer, por enquanto, texto 2D. Também preciso criar um método para modificar o texto dependendo das decisões dos jogadores.
 
-        int offset = 50;
+//         int offset = 50;
 
-        if(currentTime > 10.0f)
+//         if(currentTime > 10.0f)
+//         {
+//             // DrawTextureRec(target.texture, (Rectangle) {200, 200, (float)target.texture.width, (float)-target.texture.height}, Vector2{0, 0}, WHITE);
+//             scroll.y -= 1.0f;
+//             // DrawTextEx(fontf, "    EPISODE V \n\n\n\n\n\n    AAAAAAAA LOL\n\n\n\n\n\nTHE EMPIRE STRIKES BACK\n\n\n\n\nTEXT\n\n\n\n\n\nTEXT\n\n\n\n\n\nTEXT\n\n\n\n\n\nTEXT\n\n\n\n\n\nTEXT\n\n\n\n\n\nTEXT\n\n\n\n\n\nTEXT\n\n\n\n\n\nTEXT", scroll, 100, 10, YELLOW);
+//                 if (scroll.y < -1080) 
+//                 { 
+//                     CloseWindow();
+
+//                 }
+//         }
+// }
+
+void Scene::SceneDebug() {
+
+    if (IsKeyPressed(KEY_F1))
+    {
+        // if(debugMode == false)
+        // debugMode = true;
+        // else(debugMode == true)
+        // debugMode = false;
+        debugMode = !debugMode;
+
+        if (debugMode)
         {
-            // DrawTextureRec(target.texture, (Rectangle) {200, 200, (float)target.texture.width, (float)-target.texture.height}, Vector2{0, 0}, WHITE);
-            scroll.y -= 1.0f;
-            DrawTextEx(fontf, "    EPISODE V \n\n\n\n\n\n    AAAAAAAA LOL\n\n\n\n\n\nTHE EMPIRE STRIKES BACK\n\n\n\n\nTEXT\n\n\n\n\n\nTEXT\n\n\n\n\n\nTEXT\n\n\n\n\n\nTEXT\n\n\n\n\n\nTEXT\n\n\n\n\n\nTEXT\n\n\n\n\n\nTEXT\n\n\n\n\n\nTEXT", scroll, 100, 10, YELLOW);
-                if (scroll.y < -1080) 
-                { 
-                    CloseWindow();
-
-                }
+        cout << "Debug Mode On" << endl;
         }
+    }
 
 
+    if (debugMode == true)
+    {
+        DrawText(TextFormat("- Position: (%06.3f, %06.3f, %06.3f)", cameraVector3.position.x, cameraVector3.position.y, cameraVector3.position.z), 610, 60, 10, RED);
+        DrawText(TextFormat("- Target: (%06.3f, %06.3f, %06.3f)", cameraVector3.target.x, cameraVector3.target.y, cameraVector3.target.z), 610, 75, 10, RED);
+        DrawText(TextFormat("- Up: (%06.3f, %06.3f, %06.3f)", cameraVector3.up.x, cameraVector3.up.y, cameraVector3.up.z), 610, 90, 10, RED);
 
-// (Vector2){500, 500}
-
-}
-
-    void Scene::TextToTexture() { 
-
-}
-
-    void Scene::SceneDebug() {
-
-        if (IsKeyPressed(KEY_F1))
-        {
-            // if(debugMode == false)
-            // debugMode = true;
-            // else(debugMode == true)
-            // debugMode = false;
-            debugMode = !debugMode;
-
-            if (debugMode)
-            {
-            cout << "Debug mode ativado" << endl;
-            }
-        }
-
-
-        if (debugMode == true)
-        {
-            DrawText(TextFormat("- Position: (%06.3f, %06.3f, %06.3f)", cameraVector3.position.x, cameraVector3.position.y, cameraVector3.position.z), 610, 60, 10, RED);
-            DrawText(TextFormat("- Target: (%06.3f, %06.3f, %06.3f)", cameraVector3.target.x, cameraVector3.target.y, cameraVector3.target.z), 610, 75, 10, RED);
-            DrawText(TextFormat("- Up: (%06.3f, %06.3f, %06.3f)", cameraVector3.up.x, cameraVector3.up.y, cameraVector3.up.z), 610, 90, 10, RED);
-
-                    UpdateCameraPro(&cameraVector3,
-            (Vector3){
-                (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP))*0.1f -  
-                (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN))*0.1f,    
-                (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT))*0.1f -
-                (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT))*0.1f,
-                0.0f                                      
-            },
-            (Vector3){
-                GetMouseDelta().x*0.05f,                        
-                GetMouseDelta().y*0.05f,                       
-                0.0f                                           
-            },
-            GetMouseWheelMove()*2.0f);
-        }
+                UpdateCameraPro(&cameraVector3,
+        (Vector3){
+            (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP))*0.1f -  
+            (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN))*0.1f,    
+            (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT))*0.1f -
+            (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT))*0.1f,
+            0.0f                                      
+        },
+        (Vector3){
+            GetMouseDelta().x*0.05f,                        
+            GetMouseDelta().y*0.05f,                       
+            0.0f                                           
+        },
+        GetMouseWheelMove()*2.0f);
+    }
 
 }
 

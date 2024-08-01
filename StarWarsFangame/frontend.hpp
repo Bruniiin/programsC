@@ -4,6 +4,7 @@
 #include "text3d.hpp"
 #include "game.hpp"
 #include "playermanager.hpp"
+#include "ui.hpp"
 
 class Frontend {
 
@@ -13,11 +14,14 @@ class Frontend {
         void DefaultFrontend();
         void MainFrontend();
         void Settings();
-
-    private:
+        void LoadTextData();
+        PlayerManager player;
+        Ui ui;
         Scene scene;
         Text3D textUtils;
         Game game;
+
+    private:
         float CurrentTime;
         double Time;
         // bool OpeningScene;
@@ -25,41 +29,89 @@ class Frontend {
         // bool Mode2D;
         // bool MenuMode;
         // bool ModeSet;
-        Texture2D background;
-        Texture2D logo;
-        Texture2D icon;
+        Texture2D tFrontend[32];
+        Texture2D Background;
+        Texture2D BackgroundAlternate;
+        Texture2D Logo;
+        Texture2D Icon;
         Vector2 title;
         float offset;
-        float screenWidth;
-        float screenHeight;
+        //float screenWidth;
+        //float screenHeight;
         bool MainMenu;
         bool HasPressedTitle;
         bool IsSettings;
+        float Alpha001;
         float alphaTitle;
         float alphaMenu;
         bool textBoxEditMode = false;
         Rectangle Gui;
         bool StartGame;
         bool hasKeyBeenPressed;
+        int screenWidth;
+        int screenHeight;
 
+        RenderTexture frontendScaler;
+        Rectangle RenderRec;
+
+        bool languageSelectionEditMode;
+
+        int LanguageSelection;
 
         typedef struct {
-            char Title[128] = "Pressione qualquer botão.";
-            char Type0[32] = "Vídeo";
-            char Type1[32] = "Áudio";
-            char Type2[32] = "Controles";
-            char Type3[32] = "Acessibilidade";
-            char Option0[32] = "Novo Jogo";
-            char Option1[32] = "Configurações de Jogo";
-            char Option2[32] = "Fechar Jogo";
-            char Video1[32] = "Sincronização Vertical";
-            char Video2[32] = "Janela sem Borda";
-            char Video3[32] = "Limite de Quadros";
+            char* Title;
+            char* Type0;
+            char* Type1;
+            char* Type2;
+            char* Type3;
+            char* Option0;
+            char* Option1;
+            char* Option2;
+            char* Video1;
+            char* Video2;
+            char* Video3;
+            char* PartySelection;
+            char* Party0;
+            char* Party1;
+            char* PlayerSelection;
+            char* Players1;
+            char* Players2;
+            char* Players3;
+            char* Players4;
+            char* GameSelection;
+            char* Game_Hoth;
+            char* Game_Sandbox;
+            char* StartGame;
         } Dialog;
+
         Dialog dialog;
 
+            char* Title;
+            char* Type0;
+            char* Type1;
+            char* Type2;
+            char* Type3;
+            char* Option0;
+            char* Option1;
+            char* Option2;
+            char* Video1;
+            char* Video2;
+            char* Video3;
+            char* PartySelection;
+            char* Party0;
+            char* Party1;
+            char* PlayerSelection;
+            char* Players1;
+            char* Players2;
+            char* Players3;
+            char* Players4;
+            char* GameSelection;
+            char* Game_Hoth;
+            char* Game_Sandbox;
+            char* PressToStart;
+
         typedef struct {
-            char TitleEng[128] = "Press any button.";
+            char Title[128] = "Press any button.";
             char Type0[32] = "Video";
             char Type1[32] = "Audio";
             char Type2[32] = "Controls";
@@ -71,6 +123,7 @@ class Frontend {
             char Video2[32] = "Borderless Fullscreen";
             char Video3[32] = "Framerate Limit";
         } DialogEng;
+
         DialogEng dialogEng;
 
         typedef struct {
@@ -134,6 +187,8 @@ class Frontend {
         typedef struct {
         } sFrontend;
 
+        Font Font001;
+
         bool OpeningScene;
         bool Mode2D;
         bool Mode3D;
@@ -159,6 +214,8 @@ class Frontend {
         bool resolutionSet;
         bool caseSet;
         
+        bool TestState = true;
+
         int monitor = 0;
 
         float sAlpha = 0.5f;
@@ -179,9 +236,8 @@ class Frontend {
         char KeyEnter[16] = "Enter";
         char ButtonStart[16] = "Start";
 
-        int isCampaignSelected;
-        
-        PlayerManager player;
+        int AwakeState;
+        int StartState;
 
         Texture2D sEmpire;
         Texture2D sRebels;

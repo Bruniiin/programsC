@@ -1,9 +1,10 @@
 #pragma once
 #include <raylib.h>
 #include <vector>
-#include "tilemapmanager.hpp"
 #include "laser.hpp"
 #include "coroutinemanager.hpp"
+// #include "charactermanager.hpp"
+#include "ui.hpp"
 
 // class Projectile {
 
@@ -22,6 +23,7 @@ class PlayerManager {
         ~PlayerManager();
         //void Projectile(Vector2 pPosition, int pSpeed, Color pColor);
         void Draw();
+        void Render();
         void Update();
         void Move();
         void PlayerUpdate();
@@ -31,6 +33,7 @@ class PlayerManager {
         void RenderManager();
         void LoadCollision();
         void HandleShooting();
+        Rectangle PlayerDest();
         Vector2 DirCalculate();
 //        void Laser(Vector2 position, int speed);
         Texture2D blank;
@@ -58,10 +61,7 @@ typedef enum charClass {
 
 typedef enum {
     ON_FOOT = 0,
-    VEH_AIRSPEEDER,
-    VEH_SNOWSPEEDER, //re-skin de airspeeder na batalha de hoth /airspeeder reskin
-    VEH_X_WING,
-    VEH_FIGHTER,
+    ON_VEHICLE,
 } CharMode;
 
 typedef enum {
@@ -71,10 +71,13 @@ typedef enum {
     WPN_LIGHTSABER,
 } WeaponType;
 
+WeaponType weapontype;
+
 typedef enum {
     IN_GAME = 0,
     GAME_SET, // smash reference :D
 } GameState;
+
 GameState state;
 
 typedef enum {
@@ -83,10 +86,14 @@ typedef enum {
 } PartyType;
 
         typedef struct Player {
+            int Id;
             Vector2 playerPos;
             float playerVelocity;
             float velocityModifier;
             Texture2D player;
+            Rectangle source;
+            Rectangle destination;
+            Rectangle collision;
             bool isAlive;
             bool isHoldingWeapon;
             bool isHoldingRangedWeapon;
@@ -98,8 +105,10 @@ typedef enum {
             int Health;
             int Experience;
             int Level;
-            int PLY;
-            Vector2 laser;
+            int Location;
+            float Altitude;
+            bool isOnVehicle;
+            // Vector2 laser;
             Vector2 Dir;
             Vector2 Angle;
             GameState state;
@@ -109,13 +118,37 @@ typedef enum {
             PartyType party;
         } Player;
 
+        // typedef enum {
+        //         OBJ_VEH1 = 0,
+        //         OBJ_VEH2,
+        // } pObject;
+
+        typedef struct {
+            Texture2D ObjectTexture;
+            Vector2 objPosition;
+        } Objects;
+
+        float fallSpeed = 0.5f;
+        float fallDuration;
+
+        Texture2D ObjectTexture;
+        Texture2D PlayerTexture;
+
+        std::vector<Player> players; 
+
+        std::vector<Objects>objects;
+
         Player P1; // instâncias, Jedi
         Player P2; // Sith
+
+        void PlayerRender(int pId, Texture2D pPlayer, Vector2 pPlayerPos, Rectangle pSource, Rectangle pDestination, bool pIsAlive, int pHealth, int pExperience, int pLevel, int pMode, int pType, int pParty);
+        void Object(int pId2, int pTypeId, int pObject, Vector2 pObjectPos, bool pIsAlive2, bool pCollision);
+        void ObjectRender();
 
         Player* p1 = new Player;
         Player* p2 = new Player;
 
-        std::vector<Player> players;           
+        Texture2D ObjectsTexture;          
 
         typedef struct {
             Vector2 weaponPos;
@@ -152,6 +185,8 @@ typedef enum {
 
         std::vector<Vector2>playerPos; // vectors em vectors, muito meta
 
+        std::vector<Camera2D>camera; 
+
         float MousePosX;
         float MousePosY;
         float MouseRayPosX;
@@ -169,6 +204,13 @@ typedef enum {
         Rectangle splitscreen;
         Rectangle fullscr;
 
+        Ui ui;
+
+        Rectangle playerColl001Dest;
+        Rectangle playerColl002Dest;
+
+        float FireDelay;
+        float FireSpeed;
 
     private:
         Vector2 p1pos;
@@ -180,15 +222,22 @@ typedef enum {
         Vector2 position;
         int speed;
 
-        float FireDelay;
-        float FireSpeed;
+        float defaultMousePosX;
+        float defaultMousePosY;
+
+        int mouseOffsetX;
+        int mouseOffsetY;
+
+        bool gotDefaultMousePosition;
 
         float bulletSpeed;
         // Vector2 Dir;
 
         // Laser laser;
 
-        std::vector<Laser> lasers;
+        // std::vector<Laser> lasers;
+
+        Laser laser;
 
         std::vector<float> angles;
 
@@ -206,15 +255,15 @@ typedef enum {
 
         Texture2D defaultAim;
 
-        TilemapManager tilemap;
+        // TilemapManager tilemap;
+        //CharacterManager charactermanager;
+        //CharacterManager::Character character;
 
 //        Rectangle playerColl = { 0 };
         Rectangle playerColl001;
         Rectangle playerColl002;
         Rectangle pistolColl;
 
-        Rectangle playerColl001Dest;
-        Rectangle playerColl002Dest;
         Rectangle pistolCollDest;
 
         bool Coll001; bool Coll002; bool Coll003; bool Coll004; bool Coll005; bool Coll006; bool Coll007; bool Coll008; bool Coll009;
